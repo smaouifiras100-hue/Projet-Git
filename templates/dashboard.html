@@ -69,7 +69,12 @@ cat << 'EOF' > templates/dashboard.html
         <tr>
             <td>{{ doc.id }}</td>
             <td>{{ doc.nom_fichier }}</td>
-            <td><span class="badge">{{ doc.statut }}</span></td>
+          <td>
+    <span class="badge {% if doc.statut == 'Analyse Terminée' %}analyse-terminee{% endif %}">
+        {{ doc.statut }}
+    </span>
+</td>
+
             <td><a href="#" class="btn-action">Consulter le rapport</a></td>
         </tr>
         {% endfor %}
