@@ -196,10 +196,14 @@ def login_page():
             
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    return f"Bienvenue {current_user.email} sur votre espace d'audit SFCE. [Moteur connecté]"
+    if request.method == 'POST':
+        # Le traitement des fichiers et de l'IA sera géré ici à la prochaine étape
+        flash("Fichier reçu, en attente de l'analyse IA.", "info")
+    return render_template('dashboard.html')
+
 
 @app.route('/logout')
 @login_required
