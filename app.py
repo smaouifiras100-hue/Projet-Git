@@ -15,7 +15,7 @@ from fpdf import FPDF
 # 1. CONFIGURATION & INITIALISATION
 # ==========================================
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'cle_secours_temporaire')
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'lebonchiffre.db')
