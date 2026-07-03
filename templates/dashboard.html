@@ -64,6 +64,22 @@ cat << 'EOF' > templates/dashboard.html
                             </tr>
                         </thead>
                         <tbody>
+    {% if documents %}
+        {% for doc in documents %}
+        <tr>
+            <td>{{ doc.id }}</td>
+            <td>{{ doc.nom_fichier }}</td>
+            <td><span class="badge">{{ doc.statut }}</span></td>
+            <td><a href="#" class="btn-action">Consulter le rapport</a></td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="4" class="text-center">Aucun audit n'a encore été réalisé sur ce compte.</td>
+        </tr>
+    {% endif %}
+</tbody>
+
                             <tr>
                                 <td colspan="4" class="text-center">Aucun audit n'a encore été réalisé sur ce compte.</td>
                             </tr>
