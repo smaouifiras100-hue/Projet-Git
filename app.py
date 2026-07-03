@@ -32,7 +32,6 @@ login_manager.login_view = 'login_page'
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
 # ==========================================
 # 2. MODÈLES DE DONNÉES COMPLETS
 # ==========================================
