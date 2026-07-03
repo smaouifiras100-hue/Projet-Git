@@ -1,0 +1,78 @@
+cat << 'EOF' > templates/dashboard.html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SFCE Audit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="logo-area">
+                <h2>SF CONSULTING & EXPERTISE</h2>
+                <p>Espace Audit Professionnel</p>
+            </div>
+            <div class="user-area">
+                <span>Connecté : <strong>{{ current_user.email }}</strong></span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">Déconnexion</a>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            <!-- Section 1 : Configuration de l'analyse -->
+            <section class="card animate-fade">
+                <h3><span class="icon">🔍</span> Lancer une nouvelle analyse</h3>
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="secteur">Secteur d'activité réglementé :</label>
+                        <select id="secteur" name="secteur" required>
+                            <option value="">-- Choisir un secteur --</option>
+                            <option value="Agricole">Agricole (IAS 41)</option>
+                            <option value="Industriel">Industriel (Inventaire permanent)</option>
+                            <option value="Services_Conseil">Services & Conseil (ISO 17020)</option>
+                            <option value="BTP">BTP (Avancement & Vigilance)</option>
+                            <option value="Bancaire_Financier">Bancaire & Financier (IFRS 16 / DSP2)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file">Fichier de données comptables ou d'audit :</label>
+                        <div class="file-drop-zone">
+                            <input type="file" id="file" name="file" required>
+                            <p>Glissez-déposez votre fichier ici ou cliquez pour parcourir</p>
+                            <span class="file-hint">Formats acceptés : PDF, XLSX, XLS, DOCX (Max 10Mo)</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Exécuter l'analyse ontologique par IA</button>
+                </form>
+            </section>
+
+            <!-- Section 2 : Historique des documents -->
+            <section class="card">
+                <h3><span class="icon">📋</span> Historique des audits récents</h3>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom du Fichier</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center">Aucun audit n'a encore été réalisé sur ce compte.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
+EOF
