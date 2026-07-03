@@ -200,9 +200,66 @@ def login_page():
 @login_required
 def dashboard():
     if request.method == 'POST':
-        # Le traitement des fichiers et de l'IA sera géré ici à la prochaine étape
-        flash("Fichier reçu, en attente de l'analyse IA.", "info")
-    return render_template('dashboard.html')
+        # 1. Vérification des entrées
+        secteur = request.form.get('secteur')
+        if 'file' not in request.files or not secteur:
+            flash("Formulaire incomplet.", "danger")
+            return redirect(request.url)
+            
+        file = request.files['file']
+        if file.filename == '' or not allowed_file(file.filename):
+            flash("Fichier manquant ou format non autorisé.", "danger")
+            return redirect(request.url)
+
+        try:
+            # 2. Sécurisation et enregistrement du fichier
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_")
+            unique_filename = timestamp + filename
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+            file.save(file_path)
+
+            # 3. Enregistrement initial du document en BDD
+            doc = Document(nom_fichier=filename, user_id=current_user.id, statut="En cours d'analyse")
+            db.session.add(doc)
+            db.session.commit()
+
+            # 4. Extraction rapide des données (Exemple avec un fichier texte ou Excel via Pandas)
+            raw_lines = ""
+            if filename.endswith(('.xlsx', '.xls')):
+                df = pd.read_excel(file_path)
+                raw_lines = df.to_string()
+            else:
+                # Lecture brute pour les fichiers texte/simples (Le traitement PDF complet sera géré via FPDF/pypdf)
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    raw_lines = f.read(2000) # Analyse des 2000 premiers caractères pour l'IA
+
+            # 5. Enregistrement des données d'audit brutes
+            audit_data = AuditData(user_id=current_user.id, client_name="Client_Anonyme", secteur=secteur, raw_data={"contenu": raw_lines[:5000]})
+            db.session.add(audit_data)
+            db.session.commit()
+
+            # 6. Appel de l'Agent d'IA SFCE avec les ontologies sectorielles
+            agent = AgentAuditSFCE(secteur=secteur)
+            analyse_resultat = agent.analyser(raw_lines=raw_lines[:2000])
+
+            # 7. Sauvegarde des conclusions de l'IA
+            conclusion = AuditConclusion(audit_data_id=audit_data.id, conclusion_synthese=analyse_resultat)
+            doc.statut = "Analyse Terminée"
+            db.session.add(conclusion)
+            db.session.commit()
+
+            flash(f"Analyse réussie pour le secteur {secteur} !", "success")
+
+        except Exception as e:
+            db.session.rollback()
+            traceback.print_exc()
+            flash(f"Erreur lors du traitement : {str(e)}", "danger")
+
+    # Récupération de l'historique de l'utilisateur pour l'affichage
+    documents_utilisateurs = Document.query.filter_by(user_id=current_user.id).all()
+    return render_template('dashboard.html', documents=documents_utilisateurs)
+
 
 
 @app.route('/logout')
